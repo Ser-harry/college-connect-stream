@@ -27,9 +27,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Index />} />
-            <Route path="colleges" element={<CollegesList />} />
-            <Route path="colleges/:id" element={<CollegeDetail />} />
-            <Route path="colleges/:stream" element={<CollegesList />} />
+            <Route path="colleges">
+              <Route index element={<CollegesList />} />
+              <Route path=":stream" element={<CollegesList />} />
+              <Route path="detail/:id" element={<CollegeDetail />} />
+            </Route>
             <Route path="courses" element={<CoursesList />} />
             <Route path="exams" element={<ExamsList />} />
             <Route path="counseling" element={<Counseling />} />

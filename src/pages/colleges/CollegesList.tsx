@@ -29,17 +29,24 @@ const CollegesList = () => {
   // Set initial stream filter based on URL parameter
   useEffect(() => {
     if (stream) {
+      console.log("Stream parameter detected:", stream);
+      
       // Convert URL format (e.g., "engineering") to display format (e.g., "Engineering")
-      const formattedStream = stream.charAt(0).toUpperCase() + stream.slice(1);
+      let formattedStream = stream.charAt(0).toUpperCase() + stream.slice(1);
       
       // Handle specific URL formats like "arts-science"
-      const displayStream = formattedStream === "Arts-science" ? "Arts & Science" : formattedStream;
+      if (formattedStream === "Arts-science") {
+        formattedStream = "Arts & Science";
+      }
+      
+      console.log("Setting stream filter to:", formattedStream);
       
       setFilters(prev => ({
         ...prev,
-        streams: [displayStream]
+        streams: [formattedStream]
       }));
     } else {
+      console.log("No stream parameter, clearing stream filters");
       setFilters(prev => ({
         ...prev,
         streams: []
@@ -95,7 +102,7 @@ const CollegesList = () => {
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {stream ? `${stream.charAt(0).toUpperCase() + stream.slice(1)} Colleges` : "Colleges"}
+            {stream ? `${stream.charAt(0).toUpperCase() + stream.slice(1).replace("-", " ")} Colleges` : "Colleges"}
           </h1>
           <p className="text-gray-600">
             Find and compare the best colleges to help you make an informed decision about your education.
