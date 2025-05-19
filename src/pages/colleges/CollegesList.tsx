@@ -49,15 +49,25 @@ const CollegesList = () => {
 
   const toggleFilterItem = (filterType: keyof Filters, item: string) => {
     setFilters(prevFilters => {
-      if (prevFilters[filterType].includes(item)) {
+      // Handle minRating separately since it's a number, not an array
+      if (filterType === "minRating") {
+        return {
+          ...prevFilters,
+          [filterType]: Number(item)
+        };
+      }
+      
+      // For array filters, handle toggle logic
+      const arrayFilter = prevFilters[filterType] as string[];
+      if (arrayFilter.includes(item)) {
         return { 
           ...prevFilters, 
-          [filterType]: prevFilters[filterType].filter(i => i !== item)
+          [filterType]: arrayFilter.filter(i => i !== item)
         };
       } else {
         return { 
           ...prevFilters, 
-          [filterType]: [...prevFilters[filterType], item]
+          [filterType]: [...arrayFilter, item]
         };
       }
     });
