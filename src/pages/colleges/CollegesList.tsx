@@ -1,12 +1,11 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Search, Filter, MapPin, Star } from "lucide-react";
 
@@ -135,6 +134,8 @@ const collegeData = [
 ];
 
 const CollegesList = () => {
+  const { stream } = useParams();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     streams: [],
@@ -147,6 +148,27 @@ const CollegesList = () => {
   const [priceRange, setPriceRange] = useState([40000, 60000]);
   const [placementRange, setPlacementRange] = useState([80, 100]);
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
+  
+  // Set initial stream filter based on URL parameter
+  useEffect(() => {
+    if (stream) {
+      // Convert URL format (e.g., "engineering") to display format (e.g., "Engineering")
+      const formattedStream = stream.charAt(0).toUpperCase() + stream.slice(1);
+      
+      // Handle specific URL formats like "arts-science"
+      const displayStream = formattedStream === "Arts-science" ? "Arts & Science" : formattedStream;
+      
+      setFilters(prev => ({
+        ...prev,
+        streams: [displayStream]
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        streams: []
+      }));
+    }
+  }, [stream, location.pathname]);
 
   // Available filter options
   const streamOptions = ["Engineering", "Medical", "Management", "Design", "Arts & Science"];
@@ -224,7 +246,9 @@ const CollegesList = () => {
     <div className="py-8 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Colleges</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {stream ? `${stream.charAt(0).toUpperCase() + stream.slice(1)} Colleges` : "Colleges"}
+          </h1>
           <p className="text-gray-600">
             Find and compare the best colleges to help you make an informed decision about your education.
           </p>
@@ -410,7 +434,7 @@ const CollegesList = () => {
                   </div>
                 </div>
               ) : (
-                <Card key={item.id} className="overflow-hidden card-hover">
+                <Card key={item.id} className="overflow-hidden card-hover flex flex-col">
                   <div className="aspect-video relative overflow-hidden">
                     <img 
                       src={item.image} 
@@ -422,7 +446,7 @@ const CollegesList = () => {
                       {item.rating}/5
                     </Badge>
                   </div>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-6 flex-grow">
                     <div className="mb-2">
                       <Badge variant="outline" className="text-education-700 border-education-200 bg-education-50">
                         {item.stream}
@@ -456,7 +480,7 @@ const CollegesList = () => {
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="border-t pt-4 flex justify-between">
+                  <CardFooter className="border-t pt-4 flex justify-between mt-auto">
                     <Link to={`/colleges/${item.id}`}>
                       <Button variant="outline" size="sm">View Details</Button>
                     </Link>
