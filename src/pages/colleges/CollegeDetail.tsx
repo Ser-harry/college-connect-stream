@@ -45,7 +45,7 @@ const collegeDetails = {
       placementRate: "98%"
     },
     faculty: {
-      count: 2,240,
+      count: 2240,
       studentFacultyRatio: "5:1",
       withPhD: "97%"
     },
