@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, Filter } from "lucide-react";
-import { collegeData } from "@/data/collegeData";
+import { useColleges } from "@/hooks/useColleges";
 import { filterColleges, addAdsToColleges, Filters } from "@/utils/filterUtils";
 import CollegeFilters from "@/components/colleges/CollegeFilters";
 import CollegeListView from "@/components/colleges/CollegeListView";
@@ -25,6 +25,8 @@ const CollegesList = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([40000, 60000]);
   const [placementRange, setPlacementRange] = useState<[number, number]>([80, 100]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  
+  const { data: collegeData = [], isLoading, error } = useColleges();
   
   // Set initial stream filter based on URL parameter
   useEffect(() => {
@@ -92,6 +94,32 @@ const CollegesList = () => {
     setPriceRange([40000, 60000]);
     setPlacementRange([80, 100]);
   };
+
+  if (isLoading) {
+    return (
+      <div className="py-8 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-16">
+            <h3 className="text-xl font-medium text-gray-900 mb-2">Loading colleges...</h3>
+            <p className="text-gray-600">Please wait while we fetch the latest data</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-16">
+            <h3 className="text-xl font-medium text-red-600 mb-2">Error loading colleges</h3>
+            <p className="text-gray-600">Please try again later</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Filter colleges and add ads
   const filteredColleges = filterColleges(collegeData, searchTerm, filters, priceRange, placementRange);

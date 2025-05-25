@@ -1,5 +1,5 @@
 
-import { College } from "@/data/collegeData";
+import { College } from "@/hooks/useColleges";
 
 export interface Filters {
   streams: string[];
@@ -15,46 +15,69 @@ export const filterColleges = (
   filters: Filters,
   priceRange: [number, number],
   placementRange: [number, number]
-) => {
-  return colleges.filter(college => {
-    const matchesSearch = college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          college.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStream = filters.streams.length === 0 || filters.streams.includes(college.stream);
-    
-    const matchesLocation = filters.locations.length === 0 || 
-                            filters.locations.some(loc => college.location.includes(loc));
-    
-    const matchesPriceRange = college.feesNumeric >= priceRange[0] && college.feesNumeric <= priceRange[1];
+): College[] => {
+  return colleges.filter((college) => {
+    // Search term filter
+    if (searchTerm && !college.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !college.location.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
 
-    const matchesCollegeType = filters.collegeTypes.length === 0 || 
-                              filters.collegeTypes.includes(college.collegeType);
-    
-    const matchesExams = filters.examsAccepted.length === 0 || 
-                        filters.examsAccepted.some(exam => college.examsAccepted.includes(exam));
-    
-    const matchesRating = college.rating >= filters.minRating;
+    // Stream filter
+    if (filters.streams.length > 0 && !filters.streams.includes(college.stream)) {
+      return false;
+    }
 
-    const matchesPlacement = college.placementRate >= placementRange[0] && 
-                           college.placementRate <= placementRange[1];
-    
-    return matchesSearch && 
-           matchesStream && 
-           matchesLocation && 
-           matchesPriceRange && 
-           matchesCollegeType && 
-           matchesExams && 
-           matchesRating &&
-           matchesPlacement;
+    // Location filter
+    if (filters.locations.length > 0 && !filters.locations.includes(college.location)) {
+      return false;
+    }
+
+    // College type filter
+    if (filters.collegeTypes.length > 0 && !filters.collegeTypes.includes(college.college_type)) {
+      return false;
+    }
+
+    // Exams accepted filter
+    if (filters.examsAccepted.length > 0) {
+      const hasMatchingExam = filters.examsAccepted.some(exam => 
+        college.exams_accepted.includes(exam)
+      );
+      if (!hasMatchingExam) {
+        return false;
+      }
+    }
+
+    // Rating filter
+    if (filters.minRating > 0 && college.rating < filters.minRating) {
+      return false;
+    }
+
+    // Price range filter
+    if (college.fees_numeric < priceRange[0] || college.fees_numeric > priceRange[1]) {
+      return false;
+    }
+
+    // Placement range filter
+    if (college.placement_rate < placementRange[0] || college.placement_rate > placementRange[1]) {
+      return false;
+    }
+
+    return true;
   });
 };
 
-export const addAdsToColleges = (colleges: College[]) => {
-  return colleges.reduce((acc: (College | { isAd: true; id: string })[], college, index) => {
-    acc.push(college);
-    if ((index + 1) % 5 === 0 && index < colleges.length - 1) {
-      acc.push({ isAd: true, id: `ad-${Math.floor(index / 5)}` });
+export const addAdsToColleges = (colleges: College[]): (College | { isAd: true; id: string })[] => {
+  const result: (College | { isAd: true; id: string })[] = [];
+  
+  colleges.forEach((college, index) => {
+    result.push(college);
+    
+    // Add ad after every 3rd college
+    if ((index + 1) % 3 === 0) {
+      result.push({ isAd: true, id: `ad-${index}` });
     }
-    return acc;
-  }, []);
+  });
+  
+  return result;
 };

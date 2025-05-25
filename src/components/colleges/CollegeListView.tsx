@@ -2,7 +2,7 @@
 import CollegeCard from "./CollegeCard";
 import CollegeListItem from "./CollegeListItem";
 import AdPlaceholder from "./AdPlaceholder";
-import { College } from "@/data/collegeData";
+import { College } from "@/hooks/useColleges";
 
 interface CollegeListViewProps {
   collegesWithAds: (College | { isAd: true; id: string })[];

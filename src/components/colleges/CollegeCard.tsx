@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Star } from "lucide-react";
-import { College } from "@/data/collegeData";
+import { College } from "@/hooks/useColleges";
 
 interface CollegeCardProps {
   college: College;
@@ -30,7 +30,7 @@ const CollegeCard = ({ college }: CollegeCardProps) => {
             {college.stream}
           </Badge>
           <Badge variant="outline" className="ml-2 text-gray-600 border-gray-200 bg-gray-50">
-            {college.collegeType}
+            {college.college_type}
           </Badge>
         </div>
         <h3 className="font-bold text-lg mb-1">{college.name}</h3>
@@ -54,12 +54,12 @@ const CollegeCard = ({ college }: CollegeCardProps) => {
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-gray-600">Placement</span>
-            <span className="text-sm font-medium">{college.placementRate}%</span>
+            <span className="text-sm font-medium">{college.placement_rate}%</span>
           </div>
         </div>
       </CardContent>
       <CardFooter className="border-t pt-4 flex justify-between mt-auto">
-        <Link to={`/colleges/${college.id}`}>
+        <Link to={`/colleges/detail/${college.id}`}>
           <Button variant="outline" size="sm">View Details</Button>
         </Link>
         <Link to="/counseling">
