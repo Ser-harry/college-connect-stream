@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthProvider';
-import { X, User, Phone, MapPin } from 'lucide-react';
+import { X, User } from 'lucide-react';
 
 interface Profile {
   full_name: string | null;
@@ -31,19 +31,34 @@ const ProfileCompletionPrompt = () => {
     cutoff_mark: null,
   });
   const [loading, setLoading] = useState(false);
+  const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    console.log('ProfileCompletionPrompt: Auth state changed', { user: user?.id });
+    
+    if (user && !hasCheckedProfile) {
+      console.log('Checking profile completeness for user:', user.id);
       checkProfileCompleteness();
+      setHasCheckedProfile(true);
+    } else if (!user) {
+      console.log('No user, hiding prompt');
+      setShowPrompt(false);
+      setHasCheckedProfile(false);
     }
-  }, [user]);
+  }, [user, hasCheckedProfile]);
 
   const checkProfileCompleteness = async () => {
+    if (!user?.id) {
+      console.log('No user ID available');
+      return;
+    }
+
     try {
+      console.log('Fetching profile for user:', user.id);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -51,11 +66,31 @@ const ProfileCompletionPrompt = () => {
         return;
       }
 
-      if (!data || !data.full_name || !data.phone || !data.region || !data.community) {
+      console.log('Profile data:', data);
+
+      const isIncomplete = !data || 
+        !data.full_name || 
+        !data.phone || 
+        !data.region || 
+        !data.community;
+
+      console.log('Profile incomplete?', isIncomplete);
+
+      if (isIncomplete) {
+        console.log('Showing profile completion prompt');
         setShowPrompt(true);
         if (data) {
-          setProfile(data);
+          setProfile({
+            full_name: data.full_name || '',
+            phone: data.phone || '',
+            region: data.region || '',
+            community: data.community || '',
+            cutoff_mark: data.cutoff_mark || null,
+          });
         }
+      } else {
+        console.log('Profile is complete, not showing prompt');
+        setShowPrompt(false);
       }
     } catch (error) {
       console.error('Error checking profile:', error);
@@ -64,13 +99,20 @@ const ProfileCompletionPrompt = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user?.id) {
+      console.error('No user ID available for profile update');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      console.log('Updating profile for user:', user.id);
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user?.id,
+          id: user.id,
           full_name: profile.full_name,
           phone: profile.phone,
           region: profile.region,
@@ -79,8 +121,12 @@ const ProfileCompletionPrompt = () => {
           updated_at: new Date().toISOString(),
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Profile update error:', error);
+        throw error;
+      }
 
+      console.log('Profile updated successfully');
       toast({
         title: "Profile Updated",
         description: "Your profile has been completed successfully!",
@@ -98,7 +144,16 @@ const ProfileCompletionPrompt = () => {
     }
   };
 
-  if (!showPrompt || !user) return null;
+  const handleClose = () => {
+    console.log('User closed profile prompt');
+    setShowPrompt(false);
+  };
+
+  console.log('ProfileCompletionPrompt render:', { showPrompt, hasUser: !!user });
+
+  if (!showPrompt || !user) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -111,7 +166,7 @@ const ProfileCompletionPrompt = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowPrompt(false)}
+            onClick={handleClose}
           >
             <X size={16} />
           </Button>
@@ -119,7 +174,7 @@ const ProfileCompletionPrompt = () => {
         <CardContent>
           <Alert className="mb-4">
             <AlertDescription>
-              Please complete your profile to get personalized college recommendations and apply to colleges.
+              Please complete your profile to get personalized college recommendations and use the TNEA predictor.
             </AlertDescription>
           </Alert>
           

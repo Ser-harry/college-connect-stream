@@ -14,6 +14,7 @@ import CoursesList from "./pages/courses/CoursesList";
 import ExamsList from "./pages/exams/ExamsList";
 import Counseling from "./pages/counseling/Counseling";
 import CompareColleges from "./pages/compare/CompareColleges";
+import TNEAPredictorPage from "./pages/predictor/TNEAPredictorPage";
 import AuthPage from "./pages/auth/AuthPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="exams" element={<ExamsList />} />
               <Route path="counseling" element={<Counseling />} />
               <Route path="compare" element={<CompareColleges />} />
+              <Route path="predictor" element={<TNEAPredictorPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

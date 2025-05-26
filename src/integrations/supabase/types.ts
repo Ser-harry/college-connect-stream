@@ -93,6 +93,47 @@ export type Database = {
         }
         Relationships: []
       }
+      courses: {
+        Row: {
+          college_id: number
+          course_name: string
+          created_at: string | null
+          duration: string
+          eligibility: string | null
+          fees_per_year: number
+          id: string
+          seats_available: number | null
+        }
+        Insert: {
+          college_id: number
+          course_name: string
+          created_at?: string | null
+          duration: string
+          eligibility?: string | null
+          fees_per_year: number
+          id?: string
+          seats_available?: number | null
+        }
+        Update: {
+          college_id?: number
+          course_name?: string
+          created_at?: string | null
+          duration?: string
+          eligibility?: string | null
+          fees_per_year?: number
+          id?: string
+          seats_available?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cutoffs: {
         Row: {
           branch: string
