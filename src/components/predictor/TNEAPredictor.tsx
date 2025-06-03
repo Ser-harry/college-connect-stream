@@ -13,8 +13,8 @@ import { useCutoffs } from '@/hooks/useCutoffs';
 const TNEAPredictor = () => {
   const [cutoffMark, setCutoffMark] = useState<string>('');
   const [category, setCategory] = useState<string>('');
-  const [district, setDistrict] = useState<string>('');
-  const [department, setDepartment] = useState<string>('');
+  const [district, setDistrict] = useState<string>('all');
+  const [department, setDepartment] = useState<string>('all');
   const [collegeSearch, setCollegeSearch] = useState<string>('');
   const [predictions, setPredictions] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -42,7 +42,7 @@ const TNEAPredictor = () => {
     );
 
     // Apply district filter
-    if (district) {
+    if (district && district !== 'all') {
       tnColleges = tnColleges.filter(college => 
         college.location.includes(district)
       );
@@ -61,7 +61,7 @@ const TNEAPredictor = () => {
       );
 
       // Apply department filter
-      if (department) {
+      if (department && department !== 'all') {
         collegeCutoffs = collegeCutoffs.filter(cutoff =>
           cutoff.branch.toLowerCase().includes(department.toLowerCase())
         );
@@ -99,8 +99,8 @@ const TNEAPredictor = () => {
   };
 
   const clearFilters = () => {
-    setDistrict('');
-    setDepartment('');
+    setDistrict('all');
+    setDepartment('all');
     setCollegeSearch('');
     setCutoffMark('');
     setCategory('');
@@ -164,7 +164,7 @@ const TNEAPredictor = () => {
                     <SelectValue placeholder="Select district (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Districts</SelectItem>
+                    <SelectItem value="all">All Districts</SelectItem>
                     {districts.map((dist) => (
                       <SelectItem key={dist} value={dist}>{dist}</SelectItem>
                     ))}
@@ -179,7 +179,7 @@ const TNEAPredictor = () => {
                     <SelectValue placeholder="Select department (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Departments</SelectItem>
+                    <SelectItem value="all">All Departments</SelectItem>
                     {departments.slice(0, 20).map((dept) => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
