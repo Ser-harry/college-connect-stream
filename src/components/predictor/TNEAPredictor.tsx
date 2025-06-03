@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calculator, TrendingUp, Search, Filter } from 'lucide-react';
+import { Calculator, TrendingUp, Search, Filter, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useColleges } from '@/hooks/useColleges';
 import { useCutoffs } from '@/hooks/useCutoffs';
 
@@ -259,9 +259,17 @@ const TNEAPredictor = () => {
                           <Badge variant="outline" className="text-xs">Rank #{index + 1}</Badge>
                         </div>
                       </div>
-                      <Badge variant={prediction.chanceColor as any} className="self-start">
-                        {prediction.chance} Chance
-                      </Badge>
+                      <div className="flex flex-col gap-2 sm:items-end">
+                        <Badge variant={prediction.chanceColor as any} className="self-start sm:self-end">
+                          {prediction.chance} Chance
+                        </Badge>
+                        <Link to={`/colleges/detail/${prediction.college.id}`}>
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                            <ExternalLink className="w-3 h-3 mr-1" />
+                            View College
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm mb-4">

@@ -6,68 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
-
-// Sample college data, in a real app this would come from an API
-const collegeDetails = {
-  1: {
-    id: 1,
-    name: "Stanford University",
-    tagline: "The Leland Stanford Junior University",
-    description: "Stanford University, officially Leland Stanford Junior University, is a private research university in Stanford, California. The campus occupies 8,180 acres, among the largest in the United States, and enrolls over 17,000 students.",
-    coverImage: "https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1186&q=80",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Stanford_Cardinal_logo.svg/1200px-Stanford_Cardinal_logo.svg.png",
-    location: "Stanford, CA",
-    established: "1885",
-    type: "Private",
-    accreditation: "WASC Senior College and University Commission",
-    campusSize: "8,180 acres",
-    ranking: "#1 in Engineering",
-    website: "https://www.stanford.edu",
-    rating: 4.9,
-    stream: "Engineering",
-    courses: [
-      { id: 1, name: "Computer Science", duration: "4 years", degree: "B.S." },
-      { id: 2, name: "Electrical Engineering", duration: "4 years", degree: "B.S." },
-      { id: 3, name: "Mechanical Engineering", duration: "4 years", degree: "B.S." },
-      { id: 4, name: "Civil Engineering", duration: "4 years", degree: "B.S." },
-      { id: 5, name: "Chemical Engineering", duration: "4 years", degree: "B.S." },
-    ],
-    fees: {
-      tuition: "$56,000/year",
-      housing: "$18,000/year",
-      books: "$1,200/year",
-      total: "$75,200/year"
-    },
-    facilities: ["Library", "Sports Complex", "Research Labs", "Student Housing", "Cafeteria", "Medical Center"],
-    placements: {
-      averageSalary: "$130,000",
-      topRecruiters: ["Google", "Apple", "Microsoft", "Amazon", "Facebook"],
-      placementRate: "98%"
-    },
-    faculty: {
-      count: 2240,
-      studentFacultyRatio: "5:1",
-      withPhD: "97%"
-    },
-    reviews: [
-      { id: 1, user: "Sarah K.", rating: 5, comment: "Excellent academic environment and research opportunities." },
-      { id: 2, user: "Michael T.", rating: 4, comment: "Great faculty but the cost of living in the area is very high." },
-      { id: 3, user: "Jessica L.", rating: 5, comment: "The networking opportunities here are unmatched. I got an internship at a top tech company." },
-    ],
-    gallery: [
-      "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
-      "https://images.unsplash.com/photo-1592494804071-faea15d93a8a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
-    ],
-    admissionProcess: "The admission process includes submitting academic transcripts, standardized test scores (SAT/ACT), letters of recommendation, and personal essays. Applications are typically due in early January for the fall semester.",
-  },
-  // Additional colleges would be defined here
-};
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { MapPin, Globe, Calendar, Users, Award, TrendingUp } from "lucide-react";
+import { useColleges } from "@/hooks/useColleges";
+import { useCutoffs } from "@/hooks/useCutoffs";
+import { useCourses } from "@/hooks/useCourses";
 
 const CollegeDetail = () => {
   const { id } = useParams();
-  const collegeId = parseInt(id);
-  const college = collegeDetails[collegeId];
+  const collegeId = parseInt(id || '0');
+  
+  const { data: colleges = [] } = useColleges();
+  const { data: cutoffs = [] } = useCutoffs(collegeId);
+  const { data: courses = [] } = useCourses();
+
+  const college = colleges.find(c => c.id === collegeId);
+  const collegeCourses = courses.filter(course => course.college_id === collegeId);
 
   if (!college) {
     return (
@@ -83,12 +37,24 @@ const CollegeDetail = () => {
     );
   }
 
+  // Group cutoffs by category and branch for better display
+  const cutoffsByCategory = cutoffs.reduce((acc, cutoff) => {
+    if (!acc[cutoff.category]) {
+      acc[cutoff.category] = [];
+    }
+    acc[cutoff.category].push(cutoff);
+    return acc;
+  }, {} as Record<string, typeof cutoffs>);
+
+  // Get unique branches
+  const branches = [...new Set(cutoffs.map(c => c.branch))];
+
   return (
     <div className="bg-gray-50">
       {/* Hero Section */}
       <div 
         className="h-72 lg:h-96 bg-cover bg-center relative" 
-        style={{ backgroundImage: `url(${college.coverImage})` }}
+        style={{ backgroundImage: `url(${college.image || 'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'})` }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="container mx-auto px-4 h-full flex items-end">
@@ -96,20 +62,23 @@ const CollegeDetail = () => {
             <div className="flex items-center">
               <div className="w-16 h-16 mr-4 bg-white rounded-lg overflow-hidden flex-shrink-0">
                 <img 
-                  src={college.logo} 
+                  src={college.image || 'https://via.placeholder.com/64'} 
                   alt={`${college.name} logo`} 
-                  className="w-full h-full object-contain p-2"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div>
                 <h1 className="text-3xl font-bold">{college.name}</h1>
-                <p className="mt-1">{college.tagline}</p>
+                <p className="mt-1">{college.college_type} College</p>
                 <div className="flex items-center mt-2">
                   <Badge className="bg-education-600">
                     {college.rating}/5
                   </Badge>
                   <span className="mx-2">•</span>
-                  <span>{college.location}</span>
+                  <span className="flex items-center">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {college.location}
+                  </span>
                   <span className="mx-2">•</span>
                   <span>{college.ranking}</span>
                 </div>
@@ -121,32 +90,45 @@ const CollegeDetail = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <p className="text-gray-700 leading-relaxed">
-            {college.description}
-          </p>
-
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Established:</span>
-              <span>{college.established}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-education-600" />
+                <div>
+                  <p className="font-medium">Stream</p>
+                  <p className="text-gray-600">{college.stream}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-education-600" />
+                <div>
+                  <p className="font-medium">Total Courses</p>
+                  <p className="text-gray-600">{college.courses}</p>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Type:</span>
-              <span>{college.type}</span>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-education-600" />
+                <div>
+                  <p className="font-medium">Placement Rate</p>
+                  <p className="text-gray-600">{college.placement_rate}%</p>
+                </div>
+              </div>
+              <div>
+                <p className="font-medium">Fees</p>
+                <p className="text-gray-600">{college.fees}</p>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Accreditation:</span>
-              <span>{college.accreditation}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Campus Size:</span>
-              <span>{college.campusSize}</span>
-            </div>
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Website:</span>
-              <a href={college.website} target="_blank" rel="noopener noreferrer" className="text-education-600 hover:underline">
-                Visit Website
-              </a>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium">Exams Accepted</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {college.exams_accepted?.map((exam, index) => (
+                    <Badge key={index} variant="secondary">{exam}</Badge>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -160,189 +142,152 @@ const CollegeDetail = () => {
           </Link>
         </div>
 
-        <Tabs defaultValue="courses" className="mb-8">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="cutoffs" className="mb-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="cutoffs">Cutoffs</TabsTrigger>
             <TabsTrigger value="courses">Courses</TabsTrigger>
-            <TabsTrigger value="fees">Fees</TabsTrigger>
             <TabsTrigger value="facilities">Facilities</TabsTrigger>
-            <TabsTrigger value="placements">Placements</TabsTrigger>
-            <TabsTrigger value="faculty">Faculty</TabsTrigger>
+            <TabsTrigger value="admissions">Admissions</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="cutoffs" className="bg-white rounded-lg shadow-sm p-6 mt-2">
+            <h2 className="text-xl font-bold mb-4">TNEA Cutoff Marks 2024</h2>
+            {Object.keys(cutoffsByCategory).length === 0 ? (
+              <p className="text-gray-600">No cutoff data available for this college.</p>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(cutoffsByCategory).map(([category, categoryCutoffs]) => (
+                  <div key={category}>
+                    <h3 className="text-lg font-semibold mb-3">{category} Category</h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Branch</TableHead>
+                          <TableHead>Cutoff Mark</TableHead>
+                          <TableHead>Year</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {categoryCutoffs.map((cutoff) => (
+                          <TableRow key={cutoff.id}>
+                            <TableCell className="font-medium">{cutoff.branch}</TableCell>
+                            <TableCell>{cutoff.cutoff_mark}</TableCell>
+                            <TableCell>{cutoff.year}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
           <TabsContent value="courses" className="bg-white rounded-lg shadow-sm p-6 mt-2">
             <h2 className="text-xl font-bold mb-4">Courses Offered</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {college.courses.map((course) => (
-                <Card key={course.id} className="card-hover">
-                  <CardContent className="pt-6">
-                    <h3 className="font-bold text-lg mb-1">{course.name}</h3>
-                    <div className="text-sm text-gray-500 mb-3">
-                      {course.degree} • {course.duration}
-                    </div>
-                    <div className="mt-2">
-                      <Link to={`/courses/${course.id}`}>
-                        <Button variant="link" className="p-0 h-auto text-education-600">
-                          View Course Details
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="fees" className="bg-white rounded-lg shadow-sm p-6 mt-2">
-            <h2 className="text-xl font-bold mb-4">Fees & Expenses</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Tuition</span>
-                <span>{college.fees.tuition}</span>
+            {collegeCourses.length === 0 ? (
+              <p className="text-gray-600">No course data available for this college.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {collegeCourses.map((course) => (
+                  <Card key={course.id} className="card-hover">
+                    <CardContent className="pt-6">
+                      <h3 className="font-bold text-lg mb-1">{course.course_name}</h3>
+                      <div className="text-sm text-gray-500 mb-3">
+                        Duration: {course.duration}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>Fees:</strong> ₹{course.fees_per_year.toLocaleString()}/year
+                      </div>
+                      {course.seats_available && (
+                        <div className="text-sm text-gray-600 mb-2">
+                          <strong>Seats:</strong> {course.seats_available}
+                        </div>
+                      )}
+                      {course.eligibility && (
+                        <div className="text-sm text-gray-600">
+                          <strong>Eligibility:</strong> {course.eligibility}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Housing & Dining</span>
-                <span>{college.fees.housing}</span>
-              </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Books & Supplies</span>
-                <span>{college.fees.books}</span>
-              </div>
-              <div className="flex justify-between items-center pt-2 font-bold">
-                <span>Total Estimated Cost</span>
-                <span>{college.fees.total}</span>
-              </div>
-            </div>
-
-            <div className="mt-8">
-              <h3 className="font-bold mb-2">Financial Aid</h3>
-              <p className="text-gray-700">
-                Stanford offers comprehensive financial aid packages based on demonstrated need. 
-                Around 70% of students receive some form of financial assistance, and the university 
-                is committed to meeting 100% of demonstrated financial need for all admitted students.
-              </p>
-              <Button variant="outline" className="mt-4">
-                <a href="#" target="_blank" rel="noopener noreferrer">
-                  Check Financial Aid Options
-                </a>
-              </Button>
-            </div>
+            )}
           </TabsContent>
 
           <TabsContent value="facilities" className="bg-white rounded-lg shadow-sm p-6 mt-2">
             <h2 className="text-xl font-bold mb-4">Campus Facilities</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {college.facilities.map((facility, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium">{facility}</h3>
-                </div>
-              ))}
-            </div>
-
-            <h3 className="font-bold mt-8 mb-4">Campus Gallery</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {college.gallery.map((image, index) => (
-                <div key={index} className="aspect-video rounded-lg overflow-hidden">
-                  <img 
-                    src={image} 
-                    alt={`${college.name} campus ${index + 1}`} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Library</h3>
+                <p className="text-sm text-gray-600 mt-1">Well-equipped library with extensive collection</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Labs</h3>
+                <p className="text-sm text-gray-600 mt-1">Modern laboratories for practical learning</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Sports Complex</h3>
+                <p className="text-sm text-gray-600 mt-1">Sports facilities for student recreation</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Hostels</h3>
+                <p className="text-sm text-gray-600 mt-1">Comfortable accommodation for students</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Cafeteria</h3>
+                <p className="text-sm text-gray-600 mt-1">Hygienic food services</p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium">Medical Center</h3>
+                <p className="text-sm text-gray-600 mt-1">On-campus healthcare facilities</p>
+              </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="placements" className="bg-white rounded-lg shadow-sm p-6 mt-2">
-            <h2 className="text-xl font-bold mb-4">Placements & Career Outcomes</h2>
-            
-            <div className="mb-6">
-              <div className="flex items-center mb-2">
-                <span className="font-medium w-48">Placement Rate:</span>
-                <div className="flex-1 flex items-center gap-2">
-                  <Progress value={parseInt(college.placements.placementRate)} className="h-2 flex-1" />
-                  <span className="font-medium">{college.placements.placementRate}</span>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <span className="font-medium w-48">Average Salary:</span>
-                <span>{college.placements.averageSalary}</span>
-              </div>
-            </div>
-
-            <h3 className="font-bold mt-8 mb-2">Top Recruiters</h3>
-            <div className="flex flex-wrap gap-2">
-              {college.placements.topRecruiters.map((company, index) => (
-                <Badge key={index} variant="secondary">{company}</Badge>
-              ))}
-            </div>
-
-            <div className="mt-8">
-              <h3 className="font-bold mb-2">Career Services</h3>
-              <p className="text-gray-700">
-                Stanford provides comprehensive career services including career coaching, resume reviews, 
-                mock interviews, networking events, and career fairs. The Career Development Center 
-                offers personalized guidance to help students explore career options and find jobs 
-                and internships aligned with their goals.
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="faculty" className="bg-white rounded-lg shadow-sm p-6 mt-2">
-            <h2 className="text-xl font-bold mb-4">Faculty & Academics</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gray-50 p-6 rounded-lg text-center">
-                <div className="text-3xl font-bold text-education-700 mb-2">{college.faculty.count}</div>
-                <div className="text-gray-600">Total Faculty Members</div>
-              </div>
-              <div className="bg-gray-50 p-6 rounded-lg text-center">
-                <div className="text-3xl font-bold text-education-700 mb-2">{college.faculty.studentFacultyRatio}</div>
-                <div className="text-gray-600">Student-Faculty Ratio</div>
-              </div>
-              <div className="bg-gray-50 p-6 rounded-lg text-center">
-                <div className="text-3xl font-bold text-education-700 mb-2">{college.faculty.withPhD}</div>
-                <div className="text-gray-600">Faculty with PhD</div>
-              </div>
-            </div>
-            
-            <h3 className="font-bold mt-8 mb-2">Research & Excellence</h3>
-            <p className="text-gray-700 mb-6">
-              Stanford is renowned for its cutting-edge research across disciplines. The university has 
-              numerous research centers and institutes, and faculty members include Nobel laureates, 
-              members of the National Academy of Sciences, and other distinguished scholars. Students have 
-              abundant opportunities to participate in groundbreaking research projects.
-            </p>
-
-            <h3 className="font-bold mt-8 mb-2">Student Reviews</h3>
+          <TabsContent value="admissions" className="bg-white rounded-lg shadow-sm p-6 mt-2">
+            <h2 className="text-xl font-bold mb-4">Admission Process</h2>
             <div className="space-y-4">
-              {college.reviews.map((review) => (
-                <div key={review.id} className="border-b pb-4">
-                  <div className="flex justify-between">
-                    <span className="font-medium">{review.user}</span>
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < review.rating ? "text-yellow-500" : "text-gray-300"}>★</span>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-gray-700 mt-1">{review.comment}</p>
-                </div>
-              ))}
+              <div>
+                <h3 className="font-semibold mb-2">Eligibility Criteria</h3>
+                <p className="text-gray-700">
+                  Candidates must have completed their 12th standard with Physics, Chemistry, and Mathematics 
+                  with a minimum of 50% marks (45% for reserved categories).
+                </p>
+              </div>
+              
+              <div>
+                <h3 className="font-semibold mb-2">Application Process</h3>
+                <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                  <li>Register for TNEA counseling</li>
+                  <li>Fill the online application form</li>
+                  <li>Upload required documents</li>
+                  <li>Pay the application fee</li>
+                  <li>Attend counseling as per schedule</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">Required Documents</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                  <li>10th and 12th mark sheets</li>
+                  <li>Transfer certificate</li>
+                  <li>Community certificate (if applicable)</li>
+                  <li>Income certificate (if applicable)</li>
+                  <li>Nativity certificate</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 mt-6">
+              <Link to="/counseling">
+                <Button>Get Admission Counseling</Button>
+              </Link>
+              <Button variant="outline">Download Brochure</Button>
             </div>
           </TabsContent>
         </Tabs>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">Admission Process</h2>
-          <p className="text-gray-700 mb-6">{college.admissionProcess}</p>
-          
-          <div className="flex flex-wrap gap-4">
-            <Link to="/counseling">
-              <Button>Get Admission Counseling</Button>
-            </Link>
-            <Button variant="outline">Download Brochure</Button>
-          </div>
-        </div>
       </div>
     </div>
   );
