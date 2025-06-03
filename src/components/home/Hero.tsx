@@ -7,7 +7,15 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div className="relative bg-gradient-to-br from-education-600 via-education-700 to-education-800 text-white">
-      <div className="absolute inset-0 bg-black/20"></div>
+      {/* Background Image Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')"
+        }}
+      />
+      <div className="absolute inset-0 bg-black/60"></div>
+      
       <div className="relative container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6">
@@ -38,7 +46,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 flex items-center justify-center gap-2 bg-transparent"
+                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm"
               >
                 <Calculator size={20} />
                 TNEA Predictor
@@ -48,7 +56,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 bg-transparent"
+                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 bg-white/10 backdrop-blur-sm"
               >
                 Get Counseling
               </Button>
