@@ -8,12 +8,12 @@ const Hero = () => {
   return (
     <div className="relative bg-gradient-to-br from-education-600 via-education-700 to-education-800 text-white">
       <div className="absolute inset-0 bg-black/20"></div>
-      <div className="relative container mx-auto px-4 py-24">
+      <div className="relative container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6">
             Find Your Perfect College
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-education-100">
+          <p className="text-lg md:text-xl lg:text-2xl mb-8 text-education-100">
             Discover thousands of colleges, compare programs, and make informed decisions about your future
           </p>
           
@@ -23,25 +23,33 @@ const Hero = () => {
               <Input 
                 type="text" 
                 placeholder="Search colleges, courses, or locations..."
-                className="pl-10 py-3 text-gray-900"
+                className="pl-10 py-3 text-gray-900 w-full"
               />
             </div>
-            <Link to="/colleges">
+            <Link to="/colleges" className="w-full md:w-auto">
               <Button size="lg" variant="secondary" className="w-full md:w-auto">
                 Search Colleges
               </Button>
             </Link>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/predictor">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-education-700 flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/predictor" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 flex items-center justify-center gap-2 bg-transparent"
+              >
                 <Calculator size={20} />
                 TNEA Predictor
               </Button>
             </Link>
-            <Link to="/counseling">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-education-700">
+            <Link to="/counseling" className="w-full sm:w-auto">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto text-white border-white hover:bg-white hover:text-education-700 bg-transparent"
+              >
                 Get Counseling
               </Button>
             </Link>

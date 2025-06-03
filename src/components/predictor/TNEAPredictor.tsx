@@ -66,26 +66,26 @@ const TNEAPredictor = () => {
   };
 
   return (
-    <div className="py-8 bg-gray-50">
+    <div className="py-4 sm:py-8 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">TNEA College Predictor</h1>
-          <p className="text-gray-600">
+        <div className="mb-6 sm:mb-8 text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">TNEA College Predictor</h1>
+          <p className="text-sm sm:text-base text-gray-600 px-4">
             Predict your chances of getting admission to Tamil Nadu colleges based on your cutoff mark
           </p>
         </div>
 
-        <Card className="max-w-2xl mx-auto mb-8">
+        <Card className="max-w-2xl mx-auto mb-6 sm:mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Calculator className="w-4 h-4 sm:w-5 sm:h-5" />
               Enter Your Details
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="cutoff">TNEA Cutoff Mark</Label>
+                <Label htmlFor="cutoff" className="text-sm sm:text-base">TNEA Cutoff Mark</Label>
                 <Input
                   id="cutoff"
                   type="number"
@@ -94,13 +94,14 @@ const TNEAPredictor = () => {
                   onChange={(e) => setCutoffMark(e.target.value)}
                   min="0"
                   max="200"
+                  className="mt-1"
                 />
               </div>
               
               <div>
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category" className="text-sm sm:text-base">Category</Label>
                 <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select your category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -117,6 +118,7 @@ const TNEAPredictor = () => {
                 onClick={predictColleges} 
                 className="w-full"
                 disabled={!cutoffMark || !category}
+                size="lg"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Predict My Colleges
@@ -127,54 +129,54 @@ const TNEAPredictor = () => {
 
         {showResults && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Prediction Results</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Prediction Results</h2>
             
             {predictions.length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center">
-                  <p className="text-gray-600">No predictions available for your category and mark.</p>
+                  <p className="text-gray-600 text-sm sm:text-base">No predictions available for your category and mark.</p>
                 </CardContent>
               </Card>
             ) : (
               predictions.map((prediction, index) => (
                 <Card key={prediction.college.id} className="card-hover">
-                  <CardContent className="pt-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg">{prediction.college.name}</h3>
-                        <p className="text-gray-600">{prediction.college.location}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline">{prediction.college.stream}</Badge>
-                          <Badge variant="outline">{prediction.college.college_type}</Badge>
+                  <CardContent className="pt-4 sm:pt-6">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-base sm:text-lg text-clamp-2">{prediction.college.name}</h3>
+                        <p className="text-gray-600 text-sm text-clamp-1">{prediction.college.location}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs">{prediction.college.stream}</Badge>
+                          <Badge variant="outline" className="text-xs">{prediction.college.college_type}</Badge>
                         </div>
                       </div>
-                      <Badge variant={prediction.chanceColor as any}>
+                      <Badge variant={prediction.chanceColor as any} className="self-start">
                         {prediction.chance} Chance
                       </Badge>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 text-sm mb-4">
                       <div>
-                        <span className="text-gray-600">Lowest Cutoff</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">Lowest Cutoff</span>
                         <div className="font-medium">{prediction.lowestCutoff}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Highest Cutoff</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">Highest Cutoff</span>
                         <div className="font-medium">{prediction.highestCutoff}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Your Mark</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">Your Mark</span>
                         <div className="font-medium">{cutoffMark}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Available Branches</span>
+                        <span className="text-gray-600 text-xs sm:text-sm">Available Branches</span>
                         <div className="font-medium">{prediction.cutoffs.length}</div>
                       </div>
                     </div>
                     
                     <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-2">Available Branches:</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-2">Available Branches:</p>
+                      <div className="flex flex-wrap gap-1 sm:gap-2">
                         {prediction.cutoffs.map((cutoff, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
                             {cutoff.branch} ({cutoff.cutoff_mark})
